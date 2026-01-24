@@ -72,15 +72,14 @@ pip install gunicorn
 #### Run
 
 ```bash
-gunicorn -w 4 -b 0.0.0.0:8000 'app:create_app()'
+# Correct way - use wsgi.py
+gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app
 ```
 
 **Parameters:**
 - `-w 4`: Number of worker processes (CPU cores × 2 + 1)
 - `-b 0.0.0.0:8000`: Bind to all interfaces on port 8000
-- `--timeout 120`: Request timeout (seconds)
-- `--access-logfile -`: Log to stdout
-- `--error-logfile -`: Log errors to stderr
+- `wsgi:app`: Reference to app instance in wsgi.py (NOT wsgi:create_app)
 
 #### Full Production Command
 
@@ -91,7 +90,7 @@ gunicorn \
     --timeout 120 \
     --access-logfile - \
     --error-logfile - \
-    'app:create_app()'
+    wsgi:app
 ```
 
 ### Option 2: Waitress (Windows-Friendly)
@@ -132,6 +131,12 @@ Build and run:
 ```bash
 docker build -t mealer .
 docker run -p 8000:8000 mealer
+```
+
+Update the Dockerfile CMD:
+
+```dockerfile
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "wsgi:app"]
 ```
 
 ---
@@ -196,7 +201,7 @@ After=network.target
 User=www-data
 WorkingDirectory=/home/user/mealer
 Environment="FLASK_ENV=production"
-ExecStart=/usr/bin/gunicorn -w 4 -b 127.0.0.1:8000 'app:create_app()'
+ExecStart=/usr/bin/gunicorn -w 4 -b 127.0.0.1:8000 wsgi:app
 Restart=always
 RestartSec=10
 
