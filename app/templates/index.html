@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mealer - Your Personal Meal Planning Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white">
+    <!-- Hero Section -->
+    <section class="relative w-full h-screen flex items-center justify-center pb-20" style="background-color: #9a5017;">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <!-- Hero Image -->
+            <div class="mb-2">
+                <img 
+                    src="{{ url_for('static', filename='images/group_of_friends_febri-adiawarja.svg') }}" 
+                    alt="Mealer" 
+                    class="w-auto mx-auto"
+                    style="height: 60vh; max-height: 80vh;"
+                >
+            </div>
+            
+            <!-- Hero Title -->
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-3 tracking-wide">
+                Mealer
+            </h1>
+            
+            <!-- Hero Subtext -->
+            <p class="text-lg md:text-xl text-gray-100 mb-12">
+                Checkout what you are supposed to eat today
+            </p>
+            
+            <!-- View Plan Button -->
+            <button 
+                id="viewPlanBtn"
+                onclick="document.getElementById('mealPlanSection').scrollIntoView({ behavior: 'smooth' })"
+                class="px-8 py-4 text-lg font-semibold text-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
+                style="background-color: rgba(255, 255, 255, 0.2); border: 2px solid white;"
+            >
+                View Plan
+            </button>
+        </div>
+    </section>
+
+    <!-- Meal Plan Section (Initially Hidden, Scrolled into View) -->
+    <section id="mealPlanSection" class="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style="background-color: #f9f7f4;">
+        <div class="max-w-7xl mx-auto">
+            <!-- Load meal plan content via iframe or separate route -->
+            <iframe 
+                src="{{ url_for('meal_plan') }}" 
+                style="width: 100%; height: 100vh; border: none; background-color: #f9f7f4;"
+                title="Meal Plan"
+            ></iframe>
+        </div>
+    </section>
+
+    <script>
+        /**
+         * Scroll behavior for View Plan button
+         * Author: Soumik Ranjan Dasgupta
+         */
+        const viewPlanBtn = document.getElementById('viewPlanBtn');
+        
+        // Add visual feedback on button click
+        viewPlanBtn.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

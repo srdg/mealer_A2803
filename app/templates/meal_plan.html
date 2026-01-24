@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Plan - Mealer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Flatpickr Calendar Library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        /* Smooth animations */
+        .meal-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .meal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(154, 80, 23, 0.2);
+        }
+        
+        .macro-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .macro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(154, 80, 23, 0.15);
+        }
+        
+        .calorie-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .flatpickr-calendar {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Main Container -->
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8" style="background-color: #f9f7f4;">
+        <div class="max-w-7xl mx-auto">
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left Column (2 Rows) -->
+                <div class="lg:col-span-2">
+                    
+                    <!-- Row 1: Meal Plan Header and Meal Cards -->
+                    <div class="mb-8">
+                        <!-- Header -->
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6" style="color: #9a5017;">
+                            Your meal plan ~{{ meal_data.total_calories }} Cal
+                        </h2>
+                        
+                        <!-- Three Meal Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            
+                            <!-- Breakfast Card -->
+                            <div class="meal-card bg-white rounded-lg p-5 border-l-4" style="border-left-color: #9a5017;">
+                                <h3 class="font-bold text-sm md:text-base mb-2" style="color: #9a5017;">
+                                    Breakfast
+                                </h3>
+                                <p class="text-gray-700 text-sm leading-snug">
+                                    {{ meal_data.breakfast.name }}
+                                </p>
+                                <span class="calorie-badge" style="background-color: #fef3e2; color: #9a5017;">
+                                    {{ meal_data.breakfast.calories }} Cal
+                                </span>
+                            </div>
+                            
+                            <!-- Lunch Card -->
+                            <div class="meal-card bg-white rounded-lg p-5 border-l-4" style="border-left-color: #9a5017;">
+                                <h3 class="font-bold text-sm md:text-base mb-2" style="color: #9a5017;">
+                                    Lunch
+                                </h3>
+                                <p class="text-gray-700 text-sm leading-snug">
+                                    {{ meal_data.lunch.name }}
+                                </p>
+                                <span class="calorie-badge" style="background-color: #fef3e2; color: #9a5017;">
+                                    {{ meal_data.lunch.calories }} Cal
+                                </span>
+                            </div>
+                            
+                            <!-- Dinner Card -->
+                            <div class="meal-card bg-white rounded-lg p-5 border-l-4" style="border-left-color: #9a5017;">
+                                <h3 class="font-bold text-sm md:text-base mb-2" style="color: #9a5017;">
+                                    Dinner
+                                </h3>
+                                <p class="text-gray-700 text-sm leading-snug">
+                                    {{ meal_data.dinner.name }}
+                                </p>
+                                <span class="calorie-badge" style="background-color: #fef3e2; color: #9a5017;">
+                                    {{ meal_data.dinner.calories }} Cal
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 2: Macronutrient Split Cards -->
+                    <div>
+                        <h3 class="text-lg md:text-xl font-bold mb-4" style="color: #9a5017;">
+                            Nutritional Breakdown
+                        </h3>
+                        
+                        <!-- Three Macro Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            
+                            <!-- Carbohydrates Card -->
+                            <div class="macro-card bg-white rounded-lg p-5 border-t-4" style="border-top-color: #fbbf24;">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-sm md:text-base text-gray-900">
+                                        Carbs
+                                    </h4>
+                                    <span class="text-xs md:text-sm font-semibold text-gray-600">
+                                        {{ macro_percentages.carbs }}%
+                                    </span>
+                                </div>
+                                <p class="text-gray-700 text-sm">
+                                    <span class="font-bold text-lg">{{ meal_data.macros.carbs }}</span>g
+                                </p>
+                                <!-- Progress bar -->
+                                <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                        class="h-2 rounded-full" 
+                                        style="background-color: #fbbf24; width: {{ macro_percentages.carbs }}%;"
+                                    ></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Protein Card -->
+                            <div class="macro-card bg-white rounded-lg p-5 border-t-4" style="border-top-color: #ef4444;">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-sm md:text-base text-gray-900">
+                                        Protein
+                                    </h4>
+                                    <span class="text-xs md:text-sm font-semibold text-gray-600">
+                                        {{ macro_percentages.protein }}%
+                                    </span>
+                                </div>
+                                <p class="text-gray-700 text-sm">
+                                    <span class="font-bold text-lg">{{ meal_data.macros.protein }}</span>g
+                                </p>
+                                <!-- Progress bar -->
+                                <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                        class="h-2 rounded-full" 
+                                        style="background-color: #ef4444; width: {{ macro_percentages.protein }}%;"
+                                    ></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Fat Card -->
+                            <div class="macro-card bg-white rounded-lg p-5 border-t-4" style="border-top-color: #3b82f6;">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-sm md:text-base text-gray-900">
+                                        Fat
+                                    </h4>
+                                    <span class="text-xs md:text-sm font-semibold text-gray-600">
+                                        {{ macro_percentages.fat }}%
+                                    </span>
+                                </div>
+                                <p class="text-gray-700 text-sm">
+                                    <span class="font-bold text-lg">{{ meal_data.macros.fat }}</span>g
+                                </p>
+                                <!-- Progress bar -->
+                                <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                        class="h-2 rounded-full" 
+                                        style="background-color: #3b82f6; width: {{ macro_percentages.fat }}%;"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Calendar -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-8 bg-white rounded-lg p-6 shadow-md">
+                        <h3 class="text-lg font-bold mb-4 text-center" style="color: #9a5017;">
+                            Select Date
+                        </h3>
+                        
+                        <!-- Flatpickr Calendar -->
+                        <input 
+                            type="text" 
+                            id="mealCalendar" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-center text-sm focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                            style="focus-ring-color: #9a5017;"
+                            readonly
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Meal Plan Page Scripts
+         * Author: Soumik Ranjan Dasgupta
+         */
+        
+        /**
+         * Fetch meal data for a selected date
+         * @param {number} day - Day number (1-31)
+         */
+        function fetchMealDataForDate(day) {
+            fetch(`/api/meal-data/${day}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateMealPlanUI(data.data, data.macros_percentage);
+                    } else {
+                        console.error('Error fetching meal data:', data.error);
+                    }
+                })
+                .catch(error => console.error('Fetch error:', error));
+        }
+        
+        /**
+         * Update the UI with new meal data
+         * @param {object} mealData - Meal data object
+         * @param {object} macroPercentages - Macro percentage data
+         */
+        function updateMealPlanUI(mealData, macroPercentages) {
+            // Update meal cards
+            const mealCards = document.querySelectorAll('.meal-card');
+            
+            if (mealCards.length >= 3) {
+                // Breakfast card
+                mealCards[0].querySelector('p').textContent = mealData.breakfast.name;
+                mealCards[0].querySelector('.calorie-badge').textContent = mealData.breakfast.calories + ' Cal';
+                
+                // Lunch card
+                mealCards[1].querySelector('p').textContent = mealData.lunch.name;
+                mealCards[1].querySelector('.calorie-badge').textContent = mealData.lunch.calories + ' Cal';
+                
+                // Dinner card
+                mealCards[2].querySelector('p').textContent = mealData.dinner.name;
+                mealCards[2].querySelector('.calorie-badge').textContent = mealData.dinner.calories + ' Cal';
+            }
+            
+            // Update meal plan header with total calories
+            const mealHeader = document.querySelector('h2[style*="color"]');
+            if (mealHeader) {
+                mealHeader.textContent = `Your meal plan ~${mealData.total_calories} Cal`;
+            }
+            
+            // Update macro cards
+            const macroCards = document.querySelectorAll('.macro-card');
+            
+            if (macroCards.length >= 3) {
+                // Carbs card
+                const carbsCard = macroCards[0];
+                carbsCard.querySelectorAll('span')[0].textContent = macroPercentages.carbs + '%';
+                carbsCard.querySelectorAll('span')[1].textContent = mealData.macros.carbs;
+                carbsCard.querySelector('[style*="width"]').style.width = macroPercentages.carbs + '%';
+                
+                // Protein card
+                const proteinCard = macroCards[1];
+                proteinCard.querySelectorAll('span')[0].textContent = macroPercentages.protein + '%';
+                proteinCard.querySelectorAll('span')[1].textContent = mealData.macros.protein;
+                proteinCard.querySelector('[style*="width"]').style.width = macroPercentages.protein + '%';
+                
+                // Fat card
+                const fatCard = macroCards[2];
+                fatCard.querySelectorAll('span')[0].textContent = macroPercentages.fat + '%';
+                fatCard.querySelectorAll('span')[1].textContent = mealData.macros.fat;
+                fatCard.querySelector('[style*="width"]').style.width = macroPercentages.fat + '%';
+            }
+        }
+        
+        // Initialize Flatpickr calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date('{{ today }}');
+            
+            flatpickr('#mealCalendar', {
+                mode: 'single',
+                inline: true,
+                defaultDate: today,
+                minDate: today,
+                monthSelectorType: 'static',
+                locale: {
+                    firstDayOfWeek: 0
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Calculate day of the month from selected date
+                    const selectedDate = new Date(selectedDates[0]);
+                    const day = selectedDate.getDate();
+                    
+                    // Fetch meal data for the selected day
+                    fetchMealDataForDate(day);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
